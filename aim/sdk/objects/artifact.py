@@ -11,9 +11,9 @@ from aim.storage.object import CustomObject
 class Artifact(CustomObject):
     AIM_NAME = 'aim.artifact'
 
-    def __init__(self, path: str, *, uri: str, name: Optional[str] = None, **metadata):
+    def __init__(self, path: str, *, uri: str, endpoint: Optional[str], name: Optional[str] = None, **metadata):
         self._uri = uri
-
+        self._endpoint = endpoint
         path = pathlib.Path(path)
         if name is None:
             name = path.name
@@ -39,10 +39,10 @@ class Artifact(CustomObject):
 
     def upload(self, block: bool = False):
         artifacts_uri = self.storage['base_uri']
-        storage = registry.get_storage(artifacts_uri)
+        storage = registry.get_storage(artifacts_uri, endpoint=self._endpoint)
         storage.upload_artifact(self.path, artifact_path=self.name, block=block)
 
     def download(self, dest_dir: str) -> str:
         artifacts_uri = self.storage['base_uri']
-        storage = registry.get_storage(artifacts_uri)
+        storage = registry.get_storage(artifacts_uri, endpoint=self._endpoint)
         return storage.download_artifact(self.name, dest_dir=dest_dir)

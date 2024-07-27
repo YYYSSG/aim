@@ -23,7 +23,7 @@ class S3ArtifactsStorageAutoClean(AutoClean['S3ArtifactStorage']):
 
 
 class S3ArtifactStorage(AbstractArtifactStorage):
-    def __init__(self, url: str):
+    def __init__(self, url: str, endpoint: Optional[str]):
         super().__init__(url)
         res = urlparse(self.url)
         path = res.path
@@ -31,7 +31,7 @@ class S3ArtifactStorage(AbstractArtifactStorage):
             path = path[1:]
         self._bucket = res.netloc
         self._prefix = path
-        self._client = self._get_s3_client()
+        self._client = self._get_s3_client(endpoint)
         self._thread_pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix='s3-upload')
         self._futures = set()
         self._resources = S3ArtifactsStorageAutoClean(self)
@@ -66,8 +66,7 @@ class S3ArtifactStorage(AbstractArtifactStorage):
     def _upload_complete(self, future):
         self._futures.remove(future)
 
-    def _get_s3_client(self):
+    def _get_s3_client(self, endpoint: Optional[str]):
         import boto3
-
-        client = boto3.client('s3')
+        client = boto3.client('s3', endpoint_url=endpoint)
         return client

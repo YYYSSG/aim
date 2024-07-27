@@ -422,13 +422,14 @@ class BasicRun(BaseRun, StructuredRunMixin):
             self._run_artifacts_uri = os.path.join(base_uri, self.hash)
         return self._run_artifacts_uri
 
-    def set_artifacts_uri(self, uri: str):
+    def set_artifacts_uri(self, uri: str, endpoint: Optional[str] = None):
+        self.artifact_endpoint = endpoint
         self.meta_run_tree['artifacts_uri'] = uri
         self._run_artifacts_uri = os.path.join(uri, self.hash)
 
     @noexcept
     def log_artifact(self, path: str, name: Optional[str] = None, *, block: bool = False):
-        artifact = Artifact(path, uri=self.artifacts_uri, name=name)
+        artifact = Artifact(path, uri=self.artifacts_uri, name=name, endpoint=self.artifact_endpoint)
         artifact.upload(block=block)
         self.meta_run_tree.subtree('artifacts')[artifact.name] = artifact
 
