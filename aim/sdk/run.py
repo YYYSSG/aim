@@ -441,7 +441,7 @@ class BasicRun(BaseRun, StructuredRunMixin):
         for file_path in dir_path.glob('**/*'):
             if file_path.is_file():
                 rel_path = file_path.relative_to(dir_path)
-                artifact = Artifact(path=str(file_path), uri=self.artifacts_uri, name=f'{name}/{rel_path}')
+                artifact = Artifact(path=str(file_path), uri=self.artifacts_uri, name=f'{name}/{rel_path}', endpoint=self.artifact_endpoint)
                 artifact.upload(block=block)
                 self.meta_run_tree.subtree('artifacts')[artifact.name] = artifact
 
